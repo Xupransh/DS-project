@@ -1,0 +1,5 @@
+*.class
+*.ps
+player/*.class
+network/*.class
+pics/*.gif
