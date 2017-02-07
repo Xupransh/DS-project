@@ -54,18 +54,7 @@ public class MachinePlayer extends Player {
     int coord_examine = player_color == 0 ? x : y;
     return (coord_examine == 0 || coord_examine == 7);
   }
-  private int find(int x,int y)
-  {
-    if (x > 7 || x < 0 || y > 7 || y < 0) 
-    {
-      return 0;
-    } 
-    else 
-    {
-      return board[x][y];
-    }
-  }
-
+  
   public int adjacent(int x, int y, int[] dir){
     int curr_x = x + dir[0];
     int curr_y = y + dir[1];
@@ -134,10 +123,6 @@ public class MachinePlayer extends Player {
     if (m.moveKind == QUIT) return true;
 
     int chips_curr = player == MYPLAYER ? myChipsLeft : opponentChipsLeft;
-    int x = (m.moveKind == ADD) ? m.x1 : m.x2; 
-    int y = (m.moveKind == ADD) ? m.y1 : m.y2;
-
-
     if (m.moveKind == ADD) return checkAddMove(m, player);
     else return checkStepMove(m, player);
   }
