@@ -100,6 +100,8 @@ public class MachinePlayer extends Player {
   private boolean checkAddMove(Move m, int player) {
     int x = m.x1, y = m.y1;
     int chips_curr = player == MYPLAYER ? myChipsLeft : opponentChipsLeft;
+    int color = player == MYPLAYER ? color : !color;
+
     if (chips_curr == 0) return false;
     else if (board[x][y] == -1 || board[x][y] != 0) return false; // can't place in the corners or if already occupied
     else if (wrongGoal(player, x, y)) return false;
@@ -109,6 +111,7 @@ public class MachinePlayer extends Player {
   private boolean checkStepMove(Move m, int player) {
     int x1 = m.x1, x2 = m.x2, y1 = m.y1, y2 = m.y2;
     int chips_curr = player == MYPLAYER ? myChipsLeft : opponentChipsLeft;
+    int color = player == MYPLAYER ? color : !color;
     if (chips_curr != 0) returh false;
     else if (board[x1][y1] != color) return false; // to ensure that x1, y1 is a legal position
     else if (board[x2][y2] == -1 || board[x2][y2] != 0) returh false; // can't place in the corners or if already occupied
@@ -128,20 +131,47 @@ public class MachinePlayer extends Player {
   }
 
   // modifies a board given a move
-  private void modify(Move m) {
+  private void modify(Move m, int player) {
+    int color = player == MYPLAYER ? color : !color;
 
+    if (m.moveKind == STEP) {
+      int x1 = m.x1, x2 = m.x2, y1 = m.y1, y2 = m.y2;
+      board[x1][y1] = 0;
+      board[x2][y2] = color;
+    }
+
+    else if (m.moveKind == ADD) {
+      int x = m.x1, y = m.y1;
+      if (player == MYPLAYER) myChipsLeft--;
+      else opponentChipsLeft--;
+
+      board[x][y] = color;
+    }
   }
 
   // undoes the action of move m on the board
-  private void unModify(Move m) {
+  private void unModify(Move m, int player) {
+    int color = player == MYPLAYER ? color : !color;
 
+    if (m.moveKind == STEP) {
+      int x1 = m.x1, x2 = m.x2, y1 = m.y1, y2 = m.y2;
+      board[x1][y1] = color;
+      board[x2][y2] = 0;
+    }
+
+    else if (m.moveKind == ADD) {
+      int x = m.x1, y = m.y1;
+      if (player == MYPLAYER) myChipsLeft++;
+      else opponentChipsLeft++;
+      board[x][y] = 0;
+    }
   }
 
   // performs a move if it is legal else returns false. Opponent is 0 
   private boolean performMove(Move m, int player) {
     if (!isValid(m, player)) return false;
     else {
-        modify(m); return true;
+        modify(m, player); return true;
     }
   }
 
