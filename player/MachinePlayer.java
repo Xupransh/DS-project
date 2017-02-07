@@ -8,6 +8,14 @@ package player;
  */
 public class MachinePlayer extends Player {
 
+  private class Pos {
+    int x, y;
+
+    Pos(int x, int y) {
+      this.x = x; this.y = y; 
+    }
+  }
+
   // Creates a machine player with the given color.  Color is either 0 (black)
   // or 1 (white).  (White has the first move.)
   private int myChipsLeft = 10; 
@@ -48,6 +56,12 @@ public class MachinePlayer extends Player {
     return new Move();
   } 
 
+
+  private Move chooseRandomMove() {
+    if (myChipsLeft != 0) chooseRandomAddMove();
+    // choose random step move
+    else chooseRandomStepMove();
+  }
 
   private boolean wrongGoal(int player, int x, int y) {
     boolean player_color = player == MYPLAYER ? color : !color; 
