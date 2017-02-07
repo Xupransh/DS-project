@@ -17,14 +17,29 @@ public class MachinePlayer extends Player {
   private final static int MYPLAYER = 1; 
   private final static int OPPONENT = 2;
   private int board[8][8]; /* 0 if unoccupied, -1 for corners, 1 if occupied by me and 2 if occupied by opponet */
+  private int searchDepth;
+
+  static final int[] LEFT = {-1,0};
+  static final int[] RIGHT = {1,0};
+  static final int[] LEFT_DOWN = {-1,-1};
+  static final int[] RIGHT_UP = {1,1};
+  static final int[] UP= {0,1};
+  static final int[] LEFT_UP = {-1,1};
+  static final int[] DOWN = {0,-1};
+  static final int[] RIGHT_DOWN = {1,-1};
+  static final int[][] DIRECTIONS = {RIGHT_UP,RIGHT_DOWN,UP,DOWN,LEFT_UP,RIGHT,LEFT_DOWN,LEFT};
+
 
 
   public MachinePlayer(int color) {
+    this.color = color;
+
   }
 
   // Creates a machine player with the given color and search depth.  Color is
   // either 0 (black) or 1 (white).  (White has the first move.)
   public MachinePlayer(int color, int searchDepth) {
+    this.color = color; this.searchDepth = searchDepth;
   }
 
   // Returns a new move by "this" player.  Internally records the move (updates
@@ -39,23 +54,92 @@ public class MachinePlayer extends Player {
     int coord_examine = player_color == 0 ? x : y;
     return (coord_examine == 0 || coord_examine == 7);
   }
+  private int find(int x,int y)
+  {
+    if (x > 7 || x < 0 || y > 7 || y < 0) 
+    {
+      return 0;
+    } 
+    else 
+    {
+      return board[x][y];
+    }
+  }
 
-  // returhs true if m is a valid move else returns false
-  private boolean isValid(Move m, int player) {
+  public int adjacent(int x, int y, int[] dir){
+    int curr_x = x + dir[0];
+    int curr_y = y + dir[1];
+
+    if (curr_x < 0 || curr_x > 7) return -1;
+    else if (curr_y < 0 || curr_y > 7) return -1;
+    else return board[x+dir[0],y+dir[1]];  
+  }  
+  
+
+  private int countNeighbors(int color, int x, int y) {
+    int count = 0;
+    for (int[] dir: DIRECTIONS) {
+        if (adjacent(x, y, dir) == color) 
+          count++;
+    }
+
+    return count;
+  }
+
+  // For adding, checks if the addition of a third chip will create three adjacent chips
+  private boolean checkAdjacency(int color, int x, int y)
+  {
+    //check in a maximum 3X3 sub array around x,y
+    int count = 0;
+    for(int[] dir : DIRECTIONS)
+    {
+      /* if x+dir[0], y + dir[1] has a chip of same color */
+      if(adjacent(x, y, dir)==color)
+      {
+        count++;
+        /* if the new position has more than 1 neighbor */
+        if (countNeighbors(color, x+dir[0], y + dir[1]) > 1) return false;
+      }
+
+    }
+
+    /* if this position has more than 2 adjacent positions filled with chips of same color */
+    return (count < 2);
+
+  }
+  
+  private boolean checkAddMove(Move m, int player) {
+    int x = m.x1, y = m.y1;
     int chips_curr = player == MYPLAYER ? myChipsLeft : opponentChipsLeft;
+    if (chips_curr == 0) return false;
+    else if (board[x][y] == -1 || board[x][y] != 0) return false; // can't place in the corners or if already occupied
+    else if (wrongGoal(player, x, y)) return false;
+    else return !checkAdjacency(color, x, y);
+  }
+
+  private boolean checkStepMove(Move m, int player) {
+    int x1 = m.x1, x2 = m.x2, y1 = m.y1, y2 = m.y2;
+    int chips_curr = player == MYPLAYER ? myChipsLeft : opponentChipsLeft;
+    if (chips_curr != 0) returh false;
+    else if (board[x1][y1] != color) return false; // to ensure that x1, y1 is a legal position
+    else if (board[x2][y2] == -1 || board[x2][y2] != 0) returh false; // can't place in the corners or if already occupied
+    else if (wrongGoal(player, x2, y2)) return false;
+    else return !checkAdjacency(color, x2, y2);
+
+  }
+
+
+   // returhs true if m is a valid move else returns false
+  private boolean isValid(Move m, int player) {
     if (m.moveKind == QUIT) return true;
-    else if (m.moveKind == ADD && chips_curr == 0 || m.moveKind == STEP && chips_curr != 0) return false;
-    else if (m.moveKind == ADD) {
-      int x = m.x1, y = m.y1;
-      if (board[x][y] == -1 || board[x][y] != 0) return false; // can't place in the corners or if already occupied
-      else if (wrongGoal(player, x, y)) return false; // can't place in the opponent's goal
-      else checkAdjacency(player, x, y); // check the adjacency constraint. 
-    }
 
-    /* invalid set of moves if STEP move */
-    else {
+    int chips_curr = player == MYPLAYER ? myChipsLeft : opponentChipsLeft;
+    int x = (m.moveKind == ADD) ? m.x1 : m.x2; 
+    int y = (m.moveKind == ADD) ? m.y1 : m.y2;
 
-    }
+
+    if (m.moveKind == ADD) return checkAddMove(m, player);
+    else return checkStepMove(m, player);
   }
 
   // modifies a board given a move
@@ -86,7 +170,7 @@ public class MachinePlayer extends Player {
 
   // If the Move m is legal, records the move as a move by "this" player
   // (updates the internal game board) and returns true.  If the move is
-  // illegal, returns false without modifying the internal state of "this"
+  // illegal, returns false without modifying the internal state of "this" 
   // player.  This method is used to help set up "Network problems" for your
   // player to solve.
   public boolean forceMove(Move m) {
