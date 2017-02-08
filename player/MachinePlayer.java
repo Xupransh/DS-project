@@ -9,6 +9,14 @@ package player;
  */
 public class MachinePlayer extends Player {
 
+  private class Pos {
+    int x, y;
+
+    Pos(int x, int y) {
+      this.x = x; this.y = y; 
+    }
+  }
+
   // Creates a machine player with the given color.  Color is either 0 (black)
   // or 1 (white).  (White has the first move.)
   private int myChipsLeft = 10; 
@@ -49,6 +57,12 @@ public class MachinePlayer extends Player {
     return new Move();
   } 
 
+
+  private Move chooseRandomMove() {
+    if (myChipsLeft != 0) chooseRandomAddMove();
+    // choose random step move
+    else chooseRandomStepMove();
+  }
 
   private boolean wrongGoal(int player, int x, int y) {
     boolean player_color = player == MYPLAYER ? color : !color; 
@@ -101,6 +115,8 @@ public class MachinePlayer extends Player {
   private boolean checkAddMove(Move m, int player) {
     int x = m.x1, y = m.y1;
     int chips_curr = player == MYPLAYER ? myChipsLeft : opponentChipsLeft;
+    int color = player == MYPLAYER ? color : !color;
+
     if (chips_curr == 0) return false;
     else if (board[x][y] == -1 || board[x][y] != 0) return false; // can't place in the corners or if already occupied
     else if (wrongGoal(player, x, y)) return false;
@@ -110,6 +126,7 @@ public class MachinePlayer extends Player {
   private boolean checkStepMove(Move m, int player) {
     int x1 = m.x1, x2 = m.x2, y1 = m.y1, y2 = m.y2;
     int chips_curr = player == MYPLAYER ? myChipsLeft : opponentChipsLeft;
+    int color = player == MYPLAYER ? color : !color;
     if (chips_curr != 0) returh false;
     else if (board[x1][y1] != color) return false; // to ensure that x1, y1 is a legal position
     else if (board[x2][y2] == -1 || board[x2][y2] != 0) returh false; // can't place in the corners or if already occupied
@@ -247,7 +264,7 @@ public class MachinePlayer extends Player {
   private boolean performMove(Move m, int player) {
     if (!isValid(m, player)) return false;
     else {
-        modify(m); return true;
+        modify(m, player); return true;
     }
   }
 
