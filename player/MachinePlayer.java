@@ -1,5 +1,6 @@
 /* MachinePlayer.java */
 
+java.util.*;
 package player;
 
 /**
@@ -54,18 +55,7 @@ public class MachinePlayer extends Player {
     int coord_examine = player_color == 0 ? x : y;
     return (coord_examine == 0 || coord_examine == 7);
   }
-  private int find(int x,int y)
-  {
-    if (x > 7 || x < 0 || y > 7 || y < 0) 
-    {
-      return 0;
-    } 
-    else 
-    {
-      return board[x][y];
-    }
-  }
-
+  
   public int adjacent(int x, int y, int[] dir){
     int curr_x = x + dir[0];
     int curr_y = y + dir[1];
@@ -134,23 +124,124 @@ public class MachinePlayer extends Player {
     if (m.moveKind == QUIT) return true;
 
     int chips_curr = player == MYPLAYER ? myChipsLeft : opponentChipsLeft;
-    int x = (m.moveKind == ADD) ? m.x1 : m.x2; 
-    int y = (m.moveKind == ADD) ? m.y1 : m.y2;
-
-
     if (m.moveKind == ADD) return checkAddMove(m, player);
     else return checkStepMove(m, player);
   }
 
-  // modifies a board given a move
-  private void modify(Move m) {
+  
 
+  // modifies a board given a move
+  private void modify(Move m, int player) {
+    int color = player == MYPLAYER ? color : !color;
+
+    if (m.moveKind == STEP) {
+      int x1 = m.x1, x2 = m.x2, y1 = m.y1, y2 = m.y2;
+      board[x1][y1] = 0;
+      board[x2][y2] = color;
+    }
+
+    else if (m.moveKind == ADD) {
+      int x = m.x1, y = m.y1;
+      if (player == MYPLAYER) myChipsLeft--;
+      else opponentChipsLeft--;
+
+      board[x][y] = color;
+    }
   }
 
   // undoes the action of move m on the board
-  private void unModify(Move m) {
+  private void unModify(Move m, int player) {
+    int color = player == MYPLAYER ? color : !color;
 
+    if (m.moveKind == STEP) {
+      int x1 = m.x1, x2 = m.x2, y1 = m.y1, y2 = m.y2;
+      board[x1][y1] = color;
+      board[x2][y2] = 0;
+    }
+
+    else if (m.moveKind == ADD) {
+      int x = m.x1, y = m.y1;
+      if (player == MYPLAYER) myChipsLeft++;
+      else opponentChipsLeft++;
+      board[x][y] = 0;
+    }
   }
+
+  //to get the positions of all chips on board
+  private Move[] chipsOnBoard(int player)
+  {
+    
+    Move[] holder = new Move[10];
+    int counter = 0;
+    for (int i = 0; x < 8; x++) 
+    {
+      for (int j = 0; y < 8; y++) 
+      {
+        if (board[i][j] == 1) 
+        {
+          Move newMove = new Move(i, j);
+          holder[counter] = newMove;
+          counter++;
+        }
+      }
+    }
+    return holder;
+  }
+
+
+  //generates array list of all valid moves
+  private ArrayList allValid(int player)
+  {
+
+    ArrayList<Move> legalMoves = new ArrayList<Move>();
+
+    //generate legal moves for ADD type moves
+
+    if (myChipsLeft > 0) 
+    {
+      for (int i = 0; i < 8; i++) 
+      {
+          for (int j = 0; j < 8; j++) 
+          {
+              if (board[i][j] == 0) 
+              {
+                Move temp = new Move(i, j);
+                if (isValid(tempMove, player))
+                legalMoves.add(tempMove);
+              }
+          }
+      }
+    }
+
+    //generate legal moves for STEP moves type
+    else
+    {
+      Move[] chips_initial = chipsOnBoard(player); 
+      for(int i = 0; i<chips_initial.length ; i++)
+      {
+        Move curr = chips_initial[i];
+        for (int j = 0; j<8 ; j++ ) 
+        {
+          for (int k = 0; k <8 ; k++ ) 
+          {
+              if (board[j][k] == 0) 
+              {
+                  Move temp = new Move(x, y, curr.x1,curr.y2);
+                  if (islegal(temp, player)) 
+                  {
+                    legalMoves.add(temp); 
+                  }
+          
+              }
+          }
+        }
+      }
+    }
+
+    return legalMoves;
+  }
+
+
 
   // performs a move if it is legal else returns false. Opponent is 0 
   private boolean performMove(Move m, int player) {
