@@ -1,6 +1,6 @@
 /* MachinePlayer.java */
 
-java.util.*;
+import java.util.*;
 package player;
 
 /**
