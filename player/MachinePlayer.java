@@ -9,14 +9,6 @@ package player;
  */
 public class MachinePlayer extends Player {
 
-  private class Pos {
-    int x, y;
-
-    Pos(int x, int y) {
-      this.x = x; this.y = y; 
-    }
-  }
-
   // Creates a machine player with the given color.  Color is either 0 (black)
   // or 1 (white).  (White has the first move.)
   private int myChipsLeft = 10; 
@@ -38,8 +30,6 @@ public class MachinePlayer extends Player {
   static final int[] RIGHT_DOWN = {1,-1};
   static final int[][] DIRECTIONS = {RIGHT_UP,RIGHT_DOWN,UP,DOWN,LEFT_UP,RIGHT,LEFT_DOWN,LEFT};
 
-
-
   public MachinePlayer(int color) {
     this.color = color;
 
@@ -54,14 +44,12 @@ public class MachinePlayer extends Player {
   // Returns a new move by "this" player.  Internally records the move (updates
   // the internal game board) as a move by "this" player.
   public Move chooseMove() {
-    return new Move();
+    return chooseRandomMove();
   } 
 
-
   private Move chooseRandomMove() {
-    if (myChipsLeft != 0) chooseRandomAddMove();
-    // choose random step move
-    else chooseRandomStepMove();
+    ArrayList<Move> allLegalMoves = allValid(MYPLAYER);
+    return allLegalMoves.get((new Random()).nextInt(allLegalMoves.size()));
   }
 
   private boolean wrongGoal(int player, int x, int y) {
@@ -76,7 +64,7 @@ public class MachinePlayer extends Player {
 
     if (curr_x < 0 || curr_x > 7) return -1;
     else if (curr_y < 0 || curr_y > 7) return -1;
-    else return board[x+dir[0],y+dir[1]];  
+    else return board[curr_x][curr_y];  
   }  
   
 
@@ -115,23 +103,23 @@ public class MachinePlayer extends Player {
   private boolean checkAddMove(Move m, int player) {
     int x = m.x1, y = m.y1;
     int chips_curr = player == MYPLAYER ? myChipsLeft : opponentChipsLeft;
-    int color = player == MYPLAYER ? color : !color;
+    int player_color = player == MYPLAYER ? color : !color;
 
     if (chips_curr == 0) return false;
     else if (board[x][y] == -1 || board[x][y] != 0) return false; // can't place in the corners or if already occupied
     else if (wrongGoal(player, x, y)) return false;
-    else return !checkAdjacency(color, x, y);
+    else return !checkAdjacency(player_color, x, y);
   }
 
   private boolean checkStepMove(Move m, int player) {
     int x1 = m.x1, x2 = m.x2, y1 = m.y1, y2 = m.y2;
     int chips_curr = player == MYPLAYER ? myChipsLeft : opponentChipsLeft;
-    int color = player == MYPLAYER ? color : !color;
+    int player_color = player == MYPLAYER ? color : !color;
     if (chips_curr != 0) returh false;
-    else if (board[x1][y1] != color) return false; // to ensure that x1, y1 is a legal position
+    else if (board[x1][y1] != player_color) return false; // to ensure that x1, y1 is a legal position
     else if (board[x2][y2] == -1 || board[x2][y2] != 0) returh false; // can't place in the corners or if already occupied
     else if (wrongGoal(player, x2, y2)) return false;
-    else return !checkAdjacency(color, x2, y2);
+    else return !checkAdjacency(player_color, x2, y2);
 
   }
 
@@ -149,12 +137,12 @@ public class MachinePlayer extends Player {
 
   // modifies a board given a move
   private void modify(Move m, int player) {
-    int color = player == MYPLAYER ? color : !color;
+    int myColor = player == MYPLAYER ? color : !color;
 
     if (m.moveKind == STEP) {
       int x1 = m.x1, x2 = m.x2, y1 = m.y1, y2 = m.y2;
       board[x1][y1] = 0;
-      board[x2][y2] = color;
+      board[x2][y2] = myColor;
     }
 
     else if (m.moveKind == ADD) {
@@ -162,17 +150,17 @@ public class MachinePlayer extends Player {
       if (player == MYPLAYER) myChipsLeft--;
       else opponentChipsLeft--;
 
-      board[x][y] = color;
+      board[x][y] = myColor;
     }
   }
 
   // undoes the action of move m on the board
   private void unModify(Move m, int player) {
-    int color = player == MYPLAYER ? color : !color;
+    int myColor = player == MYPLAYER ? color : !color;
 
     if (m.moveKind == STEP) {
       int x1 = m.x1, x2 = m.x2, y1 = m.y1, y2 = m.y2;
-      board[x1][y1] = color;
+      board[x1][y1] = myColor;
       board[x2][y2] = 0;
     }
 
@@ -187,14 +175,14 @@ public class MachinePlayer extends Player {
   //to get the positions of all chips on board
   private Move[] chipsOnBoard(int player)
   {
-    
+    int myColor = player == MYPLAYER ? color : !color;
     Move[] holder = new Move[10];
     int counter = 0;
     for (int i = 0; x < 8; x++) 
     {
       for (int j = 0; y < 8; y++) 
       {
-        if (board[i][j] == 1) 
+        if (board[i][j] == myColor) 
         {
           Move newMove = new Move(i, j);
           holder[counter] = newMove;
@@ -243,12 +231,8 @@ public class MachinePlayer extends Player {
           {
               if (board[j][k] == 0) 
               {
-                  Move temp = new Move(x, y, curr.x1,curr.y2);
-                  if (islegal(temp, player)) 
-                  {
-                    legalMoves.add(temp); 
-                  }
-          
+                  Move temp = new Move(curr.x1,curr.y1, j, k);
+                  if (islegal(temp, player)) legalMoves.add(temp);                 
               }
           }
         }
