@@ -8,10 +8,24 @@ public class GameBoard{
 	final static int EMPTY = -2;
 	final static int CORNER = -1;
 
+	private final static int MYPLAYER = 1; 
+	private final static int OPPONENT = 2;
+
 	private int myChipsLeft = 10; 
 	private int opponentChipsLeft = 10;
 	private int color; /* 0 for black and 1 for white */
 	private int[][] board; /* 0 if unoccupied, -1 for corners, 1 if occupied by me and 2 if occupied by opponet */
+
+	
+	static final int[] LEFT = {-1,0};
+	static final int[] RIGHT = {1,0};
+	static final int[] LEFT_DOWN = {-1,-1};
+	static final int[] RIGHT_UP = {1,1};
+	static final int[] UP= {0,1};
+	static final int[] LEFT_UP = {-1,1};
+	static final int[] DOWN = {0,-1};
+	static final int[] RIGHT_DOWN = {1,-1};
+	static final int[][] DIRECTIONS = {RIGHT_UP,RIGHT_DOWN,UP,DOWN,LEFT_UP,RIGHT,LEFT_DOWN,LEFT};
 
 	public GameBoard(int color) {
 	  board = new int[8][8];

@@ -21,15 +21,6 @@ public class MachinePlayer extends Player {
 
   private int searchDepth;
 
-  static final int[] LEFT = {-1,0};
-  static final int[] RIGHT = {1,0};
-  static final int[] LEFT_DOWN = {-1,-1};
-  static final int[] RIGHT_UP = {1,1};
-  static final int[] UP= {0,1};
-  static final int[] LEFT_UP = {-1,1};
-  static final int[] DOWN = {0,-1};
-  static final int[] RIGHT_DOWN = {1,-1};
-  static final int[][] DIRECTIONS = {RIGHT_UP,RIGHT_DOWN,UP,DOWN,LEFT_UP,RIGHT,LEFT_DOWN,LEFT};
 
   public MachinePlayer(int color) {
     this.color = color;
