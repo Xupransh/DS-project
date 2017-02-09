@@ -1,0 +1,1 @@
+javac -Xlint -d . player/Tester.java
