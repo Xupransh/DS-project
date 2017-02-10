@@ -96,6 +96,45 @@ public class MachinePlayer extends Player {
     return legalMoves;
   }
 
+  //function to score a position, the parameters used are following (can be updated)
+  /*
+  -> It’s bad to have more than 2 pieces in goal areas - goalFeature
+  -> It’s bad to have 3 piece in a straight line - straightFeature
+  -> It’s bad to have an enemy piece in the middle of 2 of your straight line pieces - enemyFeature
+
+  -> Make tree of chips from left to right (or up to down depending on side), maintain count of no. of chips going from l to r. 
+  If enemy has higher count, that’s bad, else good.
+
+  The score will be computed based on 2 multipliers, 1 for enemy, and one for me, with the 4 features added and multiplied to the 
+  multiplier, and the 2 products added to get a final score. The enemy multiplier will be negative obviously.
+  */
+  // networkTree function needed, function to count no. of chips connected from l to r needed, takes array
+  // positions of chips on board
+  private int evaluate(int player)
+  {
+
+    int score; //this will be the value returned
+
+    int mgoalFeature;
+    int mstraightFeature;
+    int menemyFeature;
+
+    int egoalFeature;
+    int estraightFeature;
+    int eenemyFeature;
+
+    int myColor = player == MYPLAYER ? color : 1-color;
+    int enemyColor = 1-myColor;
+    Move [] enemyPosition = chipsOnBoard(int enemyColor);
+    Move [] myPosition = chipsOnBoard(int myColor);
+
+    int enemyCount = connectedChips(enemyPosition); //function needed
+    int myCount = connectedChips(myPosition);
+
+
+
+  }
+
 
   // performs a move if it is legal else returns false. Opponent is 0 
   private boolean performMove(Move m, int player) {
