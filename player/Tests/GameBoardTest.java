@@ -11,12 +11,13 @@ import static org.junit.Assert.assertEquals;
  */
 public class GameBoardTest {
 
+    int player = 2;
+    int color_black = 0;
+    int color_white = 1;
+
 
         @Test
-        public void Tester() {
-            int player = 2;
-            //int color_black = 0;
-            int color_white = 1;
+        public void Tester1() {
 
             Move m = new Move(0,0);
             GameBoard gameBoard_test = new GameBoard(color_white);
@@ -25,17 +26,22 @@ public class GameBoardTest {
 
         }
 
-    @Test
-    public void adjacent(){
+        @Test
+        public void Tester2(){
 
-            int player = 1;
+            GameBoard gameBoard_test = new GameBoard(color_white);
+            gameBoard_test.add(3,3, color_white);
+            gameBoard_test.add(3,4, color_white);
+            boolean output = gameBoard_test.checkAdjacency(color_white,3, 3);
+            assertEquals(true, output);
+
 
     }
 
-    @Test
+    /*@Test
     public void allValid() throws Exception {
 
-    }
+    }*/
 
     }
 

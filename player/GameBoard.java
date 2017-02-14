@@ -11,10 +11,10 @@ public class GameBoard{
 	private final static int MYPLAYER = 1; 
 	private final static int OPPONENT = 2;
 
-	private int myChipsLeft = 10; 
-	private int opponentChipsLeft = 10;
+	public int myChipsLeft = 10; 
+	public int opponentChipsLeft = 10;
 	private int color; /* 0 for black and 1 for white */
-	private int[][] board; /* 0 if unoccupied, -1 for corners, 1 if occupied by me and 2 if occupied by opponet */
+	public int[][] board; /* 0 if unoccupied, -1 for corners, 1 if occupied by me and 2 if occupied by opponet */
 
 	
 	static final int[] LEFT = {-1,0};
@@ -49,41 +49,7 @@ public class GameBoard{
 	}
 
 
-	// modifies a board given a move
-	private void modify(Move m, int color) {
-	  if (m.moveKind == Move.STEP) {
-	    int x1 = m.x1, x2 = m.x2, y1 = m.y1, y2 = m.y2;
-	    board[x1][y1] = color;
-	    board[x2][y2] = EMPTY;
-	  }
-
-	  else if (m.moveKind == Move.ADD) {
-	    int x = m.x1, y = m.y1;
-	    if (player == MYPLAYER) myChipsLeft--;
-	    else opponentChipsLeft--;
-	    board[x][y] = color;
-	  }
-	}
-
-	// undoes the action of move m on the board
-	private void unModify(Move m, int color) {
-
-	  if (m.moveKind == Move.STEP) {
-	    int x1 = m.x1, x2 = m.x2, y1 = m.y1, y2 = m.y2;
-	    board[x1][y1] = EMPTY;
-	    board[x2][y2] = color;
-	  }
-
-	  else if (m.moveKind == Move.ADD) {
-	    int x = m.x1, y = m.y1;
-	    if (player == MYPLAYER) myChipsLeft++;
-	    else opponentChipsLeft++;
-	    board[x][y] = EMPTY;
-	  }
-	}
-
-
-
+	
 	//to get the positions of all chips on board
 	private Move[] chipsOnBoard(int color)
 	{
@@ -134,7 +100,7 @@ public class GameBoard{
 	}
 
 
-	// returhs true if m is a valid move else returns false
+	// returns true if m is a valid move else returns false
 	public boolean isValid(Move m, int player) {
 	  if (m.moveKind == Move.QUIT) return true;
 
@@ -150,7 +116,7 @@ public class GameBoard{
 	  return (coord_examine == 0 || coord_examine == 7);
 	}
 	
-	public int adjacent(int x, int y, int[] dir){
+	private int adjacent(int x, int y, int[] dir){
 	  int curr_x = x + dir[0];
 	  int curr_y = y + dir[1];
 
@@ -171,7 +137,7 @@ public class GameBoard{
 	}
 
 	// For adding, checks if the addition of a third chip will create three adjacent chips
-	private boolean checkAdjacency(int color, int x, int y)
+	public boolean checkAdjacency(int color, int x, int y)
 	{
 	  //check in a maximum 3X3 sub array around x,y
 	  int count = 0;
@@ -192,4 +158,58 @@ public class GameBoard{
 
 	}
 
+
+  //generates array list of all valid moves
+  public ArrayList<Move> allValid(int player)
+  {
+
+    ArrayList<Move> legalMoves = new ArrayList<Move>();
+    //generate legal moves for ADD type moves
+    if (myChipsLeft > 0) 
+    {
+      for (int i = 0; i < 8; i++) 
+      {
+          for (int j = 0; j < 8; j++) 
+          {
+              if (board[i][j] == EMPTY) 
+              {
+                Move temp = new Move(i, j);
+                if (isValid(temp, player)) legalMoves.add(temp);
+              }
+          }
+      }
+    }
+
+    //generate legal moves for STEP moves type
+    else
+    {
+      Move[] chips_initial = chipsOnBoard(player); 
+      for(int i = 0; i<chips_initial.length ; i++)
+      {
+        Move curr = chips_initial[i];
+        for (int j = 0; j<8 ; j++ ) 
+        {
+          for (int k = 0; k <8 ; k++ ) 
+          {
+              if (board[j][k] == EMPTY) 
+              {
+                  Move temp = new Move(j, k, curr.x1,curr.y1);
+                  if (isValid(temp, player)) legalMoves.add(temp);    
+              }
+          }
+        }
+      }
+    }
+
+    return legalMoves;
+  }
+
+  public void add(int x, int y, int color)
+  {
+  	if(board[x][y] == -1) {
+		board[x][y] = color;
+	}
+  }
 }
+
+  
