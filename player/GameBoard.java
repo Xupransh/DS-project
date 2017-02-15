@@ -204,10 +204,13 @@ public class GameBoard{
     return legalMoves;
   }
 
-  public void add(int x, int y, int color)
+  //small, bad function just to help with testing, delete this later.
+  public void add(int x, int y, int player)
   {
-  	if(board[x][y] == -1) {
-		board[x][y] = color;
+
+  	int my_color = player == MYPLAYER ? color : 1-color;
+  	if(board[x][y] == -2) {
+		board[x][y] = my_color;
 	}
   }
 }
